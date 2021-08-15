@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 from cereal import car
+from common.realtime import DT_CTRL
 from selfdrive.config import Conversions as CV
-from selfdrive.car.hyundai.values import CAR, EV_CAR, HYBRID_CAR
+from selfdrive.controls.lib.events import ET
+from selfdrive.car.hyundai.values import CAR, EV_CAR, HYBRID_CAR, Buttons, LFASetting
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint
 from selfdrive.car.interfaces import CarInterfaceBase
 
+EventName = car.CarEvent.EventName
+ButtonType = car.CarState.Button.Event.Type
+
 class CarInterface(CarInterfaceBase):
+  def __init__(self, CP, CarController, CarState):
+    super().__init__(CP, CarController, CarState)
+
+    self.last_enable_pressed = 0
+    self.last_enable_sent = 0
 
   @staticmethod
   def compute_gb(accel, speed):
@@ -254,6 +264,8 @@ class CarInterface(CarInterfaceBase):
 
     ret.enableBsm = 0x58b in fingerprint[0]
 
+    ret.pcmCruise = True
+
     return ret
 
   def update(self, c, can_strings):
@@ -264,15 +276,122 @@ class CarInterface(CarInterfaceBase):
     ret.canValid = self.cp.can_valid and self.cp_cam.can_valid
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
 
-    events = self.create_common_events(ret)
+    if self.CP.pcmCruise and not self.CC.scc_live:
+      self.CP.pcmCruise = False
+    elif self.CC.scc_live and not self.CP.pcmCruise:
+      self.CP.pcmCruise = True
+
+    ret.lfaEnabled = self.CS.lkasEnabled
+    ret.accEnabled = self.CS.accEnabled
+    ret.leftBlinkerOn = self.CS.leftBlinkerOn
+    ret.rightBlinkerOn = self.CS.rightBlinkerOn
+    ret.automaticLaneChange = self.CS.automaticLaneChange
+    ret.belowLaneChangeSpeed = self.CS.belowLaneChangeSpeed
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
     if ret.vEgo < (self.CP.minSteerSpeed + 2.) and self.CP.minSteerSpeed > 10.:
       self.low_speed_alert = True
     if ret.vEgo > (self.CP.minSteerSpeed + 4.):
       self.low_speed_alert = False
+
+    buttonEvents = []
+    if self.CS.cruise_buttons != self.CS.prev_cruise_buttons:
+      be = car.CarState.ButtonEvent.new_message()
+      be.pressed = self.CS.cruise_buttons != 0
+      but = self.CS.cruise_buttons if be.pressed else self.CS.prev_cruise_buttons
+      if but == Buttons.RES_ACCEL:
+        be.type = ButtonType.accelCruise
+      elif but == Buttons.SET_DECEL:
+        be.type = ButtonType.decelCruise
+      elif but == Buttons.GAP_DIST:
+        be.type = ButtonType.gapAdjustCruise
+      elif but == Buttons.CANCEL:
+        be.type = ButtonType.cancel
+      else:
+        be.type = ButtonType.unknown
+      buttonEvents.append(be)
+
+    if self.CS.lfaStatus != self.CS.prev_lfaStatus:
+      be = car.CarState.ButtonEvent.new_message()
+      be.type = ButtonType.unknown
+      if self.CS.lfaStatus == 2:
+        be.pressed = True
+        but = self.CS.lfaStatus
+      else:
+        be.pressed = False
+        but = self.CS.prev_lfaStatus
+      if but == LFASetting.LFA_BUTTON:
+        be.type = ButtonType.altButton1
+      buttonEvents.append(be)
+    ret.buttonEvents = buttonEvents
+
+    #events
+    events = self.create_common_events(ret)
+
     if self.low_speed_alert:
       events.add(car.CarEvent.EventName.belowSteerSpeed)
+    if self.CS.brake_hold and self.CS.CP.openpilotLongitudinalControl:
+      if self.CS.lfaEnabled:
+        self.CS.disengageByBrake = True
+      if ret.cruiseState.enabled:
+        events.add(EventName.brakeHold)
+      else:
+        events.add(EventName.silentBrakeHold)
+
+    self.CS.disengageByBrake = self.CS.disengageByBrake or ret.disengageByBrake
+
+    cur_time = self.frame * DT_CTRL
+    enable_pressed = False
+    enable_from_brake = False
+
+    if self.CS.disengageByBrake and not ret.brakePressed and not self.CS.brake_hold and self.CS.lfaEnabled:
+      self.last_enable_pressed = cur_time
+      enable_pressed = True
+      enable_from_brake = True
+
+    if not ret.brakePressed and not self.CS.brake_hold:
+      self.CS.disengageByBrake = False
+      ret.disengageByBrake = False
+
+    # handle button presses
+    for b in ret.buttonEvents:
+      # do enable on both accel and decel buttons
+      if b.type in [ButtonType.accelCruise, ButtonType.decelCruise] and not b.pressed:
+        self.last_enable_pressed = cur_time
+        enable_pressed = True
+      # do disable on LFA button if ACC is disabled
+      if b.type in [ButtonType.altButton1] and b.pressed:
+        if not self.CS.lfaEnabled: #disabled LFA
+          if not ret.cruiseState.enabled:
+            events.add(EventName.buttonCancel)
+          else:
+            events.add(EventName.manualSteeringRequired)
+        else: #enabled LFA
+          if not ret.cruiseState.enabled:
+            self.last_enable_pressed = cur_time
+            enable_pressed = True
+      # do disable on button down
+      if b.type == ButtonType.cancel and b.pressed:
+        if not self.CS.lfaEnabled:
+          events.add(EventName.buttonCancel)
+        else:
+          events.add(EventName.manualLongitudinalRequired)
+
+    if self.CP.pcmCruise:
+      if ((cur_time - self.last_enable_pressed) < 0.2 and
+          (cur_time - self.last_enable_sent) > 0.2 and
+          (ret.cruiseState.enabled or self.CS.lfaEnabled)) or \
+         (enable_pressed and events.any(ET.NO_ENTRY)):
+        if enable_from_brake:
+          events.add(EventName.silentButtonEnable)
+        else:
+          events.add(EventName.buttonEnable)
+        self.last_enable_sent = cur_time
+    elif enable_pressed:
+      if enable_from_brake:
+        events.add(EventName.silentButtonEnable)
+      else:
+        events.add(EventName.buttonEnable)
 
     ret.events = events.to_msg()
 

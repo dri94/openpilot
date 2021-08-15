@@ -141,11 +141,12 @@ static int hyundai_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     // enter controls on rising edge of ACC, exit controls on ACC off
     if (addr == 1057) {
       // 2 bits: 13-14
-      int cruise_engaged = (GET_BYTES_04(to_push) >> 13) & 0x3;
+      //int cruise_engaged = (GET_BYTES_04(to_push) >> 13) & 0x3;
+      int cruise_engaged = (GET_BYTES_04(to_push) >> 4) & 0x1;
       if (cruise_engaged && !cruise_engaged_prev) {
         controls_allowed = 1;
       }
-      if (!cruise_engaged) {
+      if (!cruise_engaged || disengageFromBrakes) {
         controls_allowed = 0;
       }
       cruise_engaged_prev = cruise_engaged;
