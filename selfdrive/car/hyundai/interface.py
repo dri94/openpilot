@@ -281,7 +281,7 @@ class CarInterface(CarInterfaceBase):
     elif self.CC.scc_live and not self.CP.pcmCruise:
       self.CP.pcmCruise = True
 
-    ret.lfaEnabled = self.CS.lkasEnabled
+    ret.lfaEnabled = self.CS.lfaEnabled
     ret.accEnabled = self.CS.accEnabled
     ret.leftBlinkerOn = self.CS.leftBlinkerOn
     ret.rightBlinkerOn = self.CS.rightBlinkerOn

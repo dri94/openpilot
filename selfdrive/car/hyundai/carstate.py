@@ -76,8 +76,8 @@ class CarState(CarStateBase):
       ret.cruiseState.enabled = cp.vl["TCS13"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
     else:
-      #ret.cruiseState.available = cp.vl["SCC11"]["MainMode_ACC"] == 1
-      ret.cruiseState.available = bool(main_on)
+      ret.cruiseState.available = cp.vl["SCC11"]["MainMode_ACC"] == 1
+      #ret.cruiseState.available = bool(main_on)
       ret.cruiseState.enabled = cp.vl["SCC12"]["ACCMode"] != 0
       ret.cruiseState.standstill = cp.vl["SCC11"]["SCCInfoDisplay"] == 4.
 
@@ -92,8 +92,8 @@ class CarState(CarStateBase):
     ret.brake = 0
     ret.brakePressed = cp.vl["TCS13"]["DriverBraking"] != 0
 
-    if bool(main_on):
-      if self.prev_lfaStatus != 2: #1 == not LFA button
+    if ret.cruiseState.available:
+      if self.prev_lfaStatus != 2: #2 == not LFA button
         self.lfaEnabled = not self.lfaEnabled
     else:
       self.lfaEnabled = False
@@ -137,7 +137,7 @@ class CarState(CarStateBase):
     self.lkas11 = copy.copy(cp_cam.vl["LKAS11"])
     self.clu11 = copy.copy(cp.vl["CLU11"])
     self.park_brake = cp.vl["TCS13"]["PBRAKE_ACT"] == 1
-    main_on = cp.vl["SCC11"]["MainMode_ACC"]
+    self.main_on = cp.vl["SCC11"]["MainMode_ACC"]
     self.steer_state = cp.vl["MDPS12"]["CF_Mdps_ToiActive"]  # 0 NOT ACTIVE, 1 ACTIVE
     self.lead_distance = cp.vl["SCC11"]["ACC_ObjDist"]
     self.brake_hold = cp.vl["TCS15"]["AVH_LAMP"] == 2 # 0 OFF, 1 ERROR, 2 ACTIVE, 3 READY
