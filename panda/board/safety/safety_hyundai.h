@@ -21,6 +21,7 @@ AddrCheckStruct hyundai_rx_checks[] = {
   {.msg = {{608, 0, 8, .check_checksum = true, .max_counter = 3U, .expected_timestep = 10000U},
            {881, 0, 8, .expected_timestep = 10000U}, { 0 }}},
   {.msg = {{902, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}, { 0 }, { 0 }}},
+  {.msg = {{913, 0, 8, .check_checksum = false, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{916, 0, 8, .check_checksum = true, .max_counter = 7U, .expected_timestep = 10000U}, { 0 }, { 0 }}},
   {.msg = {{1057, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
 };
@@ -139,16 +140,13 @@ static int hyundai_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     }
 
     // enter controls on rising edge of ACC, exit controls on ACC off
-    if (addr == 913) {
+    if (addr == 1057) {
       // 2 bits: 13-14
-      //int cruise_engaged = (GET_BYTES_04(to_push) >> 13) & 0x3;
-      int cruise_engaged = (GET_BYTES_04(to_push) >> 4) & 0x1;
+      int cruise_engaged = (GET_BYTES_04(to_push) >> 13) & 0x3;
       if (cruise_engaged && !cruise_engaged_prev) {
-        controls_allowed = 1;
+          controls_allowed = 1;
       }
-      if (!cruise_engaged || disengageFromBrakes) {
-        controls_allowed = 0;
-      }
+
       cruise_engaged_prev = cruise_engaged;
     }
 
