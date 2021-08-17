@@ -3,7 +3,7 @@ from cereal import car
 from common.realtime import DT_CTRL
 from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.events import ET
-from selfdrive.car.hyundai.values import CAR, EV_CAR, HYBRID_CAR, Buttons, LFASetting
+from selfdrive.car.hyundai.values import CAR, EV_CAR, HYBRID_CAR, Buttons
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint
 from selfdrive.car.interfaces import CarInterfaceBase
 
