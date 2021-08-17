@@ -85,10 +85,9 @@ class CarState(CarStateBase):
       ret.cruiseState.standstill = cp.vl["SCC11"]["SCCInfoDisplay"] == 4.
 
     if ret.cruiseState.available:
-      if not self.prev_lfa_enabled and self.lfa_enabled: #1 == not LFA button
-        self.lfaEnabled = True
-      elif self.prev_lfa_enabled and not self.lfa_enabled:
-        self.lfaEnabled = False
+      if self.prev_lfa_enabled != 1: #1 == not LFA button
+        if self.lfa_enabled == 1:
+          self.lfaEnabled = not self.lfa_enabled
     else:
       self.lfaEnabled = False
       self.accEnabled = False
