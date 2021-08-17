@@ -102,6 +102,8 @@ bool gas_pressed_prev = false;
 bool brake_pressed = false;
 bool brake_pressed_prev = false;
 bool cruise_engaged_prev = false;
+bool acc_main_on_prev = false;
+bool lfa_pressed_prev = false;
 float vehicle_speed = 0;
 bool vehicle_moving = false;
 

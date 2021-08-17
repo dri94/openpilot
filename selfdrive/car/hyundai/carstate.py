@@ -30,13 +30,16 @@ class CarState(CarStateBase):
     self.belowLaneChangeSpeed = True
     self.automaticLaneChange = True
 
-    self.lfaStatus = 0
+    self.cruise_buttons = 0
+    self.prev_cruise_buttons = 0
+
+    self.lfa_enabled = None
+    self.prev_lfa_enabled = None
 
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
 
-    self.prev_lfaStatus = self.lfaStatus
-    self.prev_lfaEnabled = self.lfaEnabled
+    self.prev_lfa_enabled = self.lfa_enabled
 
     ret.doorOpen = any([cp.vl["CGW1"]["CF_Gway_DrvDrSw"], cp.vl["CGW1"]["CF_Gway_AstDrSw"],
                         cp.vl["CGW2"]["CF_Gway_RLDrSw"], cp.vl["CGW2"]["CF_Gway_RRDrSw"]])
@@ -52,8 +55,10 @@ class CarState(CarStateBase):
 
     self.belowLaneChangeSpeed = ret.vEgo < (30 * CV.MPH_TO_MS)
 
-    self.lfaStatus = cp.vl["LFAHDA_MFC"]["LFA_Icon_State"]
-    self.lfaEnabled = cp.vl["BCM_PO_11"]["LFA_Pressed"]
+    self.lfa_enabled = cp.vl["BCM_PO_11"]["LFA_Pressed"] == 0
+
+    if self.prev_lfa_enabled is None:
+      self.prev_lfa_enabled = self.lfa_enabled
 
     ret.standstill = ret.vEgoRaw < 0.1
 
@@ -65,7 +70,6 @@ class CarState(CarStateBase):
     ret.steeringTorque = cp.vl["MDPS12"]["CR_Mdps_StrColTq"]
     ret.steeringTorqueEps = cp.vl["MDPS12"]["CR_Mdps_OutTq"]
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
-    ret.steerWarning = cp.vl["MDPS12"]["CF_Mdps_ToiUnavail"] != 0 or cp.vl["MDPS12"]["CF_Mdps_ToiFlt"] != 0
 
     self.leftBlinkerOn = cp.vl["CGW1"]["CF_Gway_TurnSigLh"] != 0
     self.rightBlinkerOn = cp.vl["CGW1"]["CF_Gway_TurnSigRh"] != 0
@@ -77,9 +81,17 @@ class CarState(CarStateBase):
       ret.cruiseState.standstill = False
     else:
       ret.cruiseState.available = cp.vl["SCC11"]["MainMode_ACC"] == 1
-      #ret.cruiseState.available = bool(main_on)
       ret.cruiseState.enabled = cp.vl["SCC12"]["ACCMode"] != 0
       ret.cruiseState.standstill = cp.vl["SCC11"]["SCCInfoDisplay"] == 4.
+
+    if ret.cruiseState.available:
+      if not self.prev_lfa_enabled and self.lfa_enabled: #1 == not LFA button
+        self.lfaEnabled = True
+      elif self.prev_lfa_enabled and not self.lfa_enabled:
+        self.lfaEnabled = False
+    else:
+      self.lfaEnabled = False
+      self.accEnabled = False
 
     if ret.cruiseState.enabled:
       speed_conv = CV.MPH_TO_MS if cp.vl["CLU11"]["CF_Clu_SPEED_UNIT"] else CV.KPH_TO_MS
@@ -88,16 +100,16 @@ class CarState(CarStateBase):
     else:
       ret.cruiseState.speed = 0
 
+    ret.steerWarning = False
+
+    if self.lfaEnabled:
+      steer_state = cp.vl["MDPS12"]["CF_Mdps_ToiActive"]  # 0 NOT ACTIVE, 1 ACTIVE
+      if (self.automaticLaneChange and not self.belowLaneChangeSpeed and (self.rightBlinkerOn or self.leftBlinkerOn)) or not (self.rightBlinkerOn or self.leftBlinkerOn):
+        ret.steerWarning = cp.vl["MDPS12"]["CF_Mdps_ToiUnavail"] != 0 or cp.vl["MDPS12"]["CF_Mdps_ToiFlt"] != 0
+
     # TODO: Find brake pressure
     ret.brake = 0
     ret.brakePressed = cp.vl["TCS13"]["DriverBraking"] != 0
-
-    if ret.cruiseState.available:
-      if self.prev_lfaStatus != 2: #2 == not LFA button
-        self.lfaEnabled = not self.lfaEnabled
-    else:
-      self.lfaEnabled = False
-      self.accEnabled = False
 
     if self.CP.carFingerprint in (HYBRID_CAR | EV_CAR):
       if self.CP.carFingerprint in HYBRID_CAR:
@@ -137,8 +149,6 @@ class CarState(CarStateBase):
     self.lkas11 = copy.copy(cp_cam.vl["LKAS11"])
     self.clu11 = copy.copy(cp.vl["CLU11"])
     self.park_brake = cp.vl["TCS13"]["PBRAKE_ACT"] == 1
-    self.main_on = cp.vl["SCC11"]["MainMode_ACC"]
-    self.steer_state = cp.vl["MDPS12"]["CF_Mdps_ToiActive"]  # 0 NOT ACTIVE, 1 ACTIVE
     self.lead_distance = cp.vl["SCC11"]["ACC_ObjDist"]
     self.brake_hold = cp.vl["TCS15"]["AVH_LAMP"] == 2 # 0 OFF, 1 ERROR, 2 ACTIVE, 3 READY
     self.brake_error = cp.vl["TCS13"]["ACCEnable"] != 0 # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
@@ -208,7 +218,6 @@ class CarState(CarStateBase):
       ("ACC_ObjDist", "SCC11", 0),
       ("ACCMode", "SCC12", 1),
 
-      ("LFA_Icon_State", "LFAHDA_MFC", 0),
       ("LFA_Pressed", "BCM_PO_11", 0),
     ]
 
