@@ -87,7 +87,7 @@ class CarState(CarStateBase):
     if ret.cruiseState.available:
       if self.prev_lfa_enabled != 1: #1 == not LFA button
         if self.lfa_enabled == 1:
-          self.lfaEnabled = not self.lfa_enabled
+          self.lfaEnabled = not self.lfaEnabled
     else:
       self.lfaEnabled = False
       self.accEnabled = False
