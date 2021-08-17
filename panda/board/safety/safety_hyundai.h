@@ -144,7 +144,7 @@ static int hyundai_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
       {
         controls_allowed = 1;
       }
-      lfa_pressed_prev_prev = lfa_pressed;
+      lfa_pressed_prev = lfa_pressed;
     }
 
     // enter controls on rising edge of ACC, exit controls on ACC off
