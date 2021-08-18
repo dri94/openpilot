@@ -1,1 +1,1 @@
-#define COMMA_VERSION "0.8.7-DoB-RoBR-1.0"
+#define COMMA_VERSION "0.8.7-MADS-1.0"
