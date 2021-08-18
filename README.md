@@ -42,15 +42,6 @@ The goal of this fork is to enhance the user driving experience for Hyundai vehi
 9. Event audible alerts are more relaxed to match Hyundai stock behavior
 <br></br>
 
-**Personal Settings (applicable to 2021 Hyundai Sonata N Line)**
-* PID Lateral Tune
-    * `kp` = 2.5
-    * `ki` = 0.05
-    * `kd` = 2.5
-    * `kf` = 0.00005
-* Custom openpilot Engage/Disengage Sounds
-    * Tesla inspired sounds
-
 What is openpilot?
 ------
 
