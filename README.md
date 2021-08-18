@@ -3,7 +3,7 @@
 Table of Contents
 =======================
 
-* [Fork Features](#fork-features)
+* [Fork Features - MADS](#fork-features-mads)
 * [What is openpilot?](#what-is-openpilot)
 * [Integration with Stock Features](#integration-with-stock-features)
 * [Supported Hardware](#supported-hardware)
@@ -22,23 +22,34 @@ Table of Contents
 
 ---
 
-Fork Features
+Fork Features - MADS
 ------
 
 The goal of this fork is to enhance the user driving experience for Hyundai vehicles with openpilot with modified behaviors of openpilot engagements, the Modified Assistive Driving Safety (MADS) Mode. This fork complies with Comma's safety rules as accurately as possible with the following changes:
+<br></br>
 
-sunnyhaibin's Modified Assistive Driving Safety (MADS) Mode:
+**sunnyhaibin's Modified Assistive Driving Safety (MADS) Mode**
 
-    1. openpilot ALC and Hyundai SCC can be engaged independently of each other
-    2. LFA button toggles openpilot ALC
-    3. SET- button enables Hyundai SCC
-    4. CANCEL button only disables Hyundai SCC
-    5. CRUISE (MAIN) button disables openpilot completely when OFF (strictly enforced in panda safety code)
-    6. BRAKE pedal press will pause openpilot ALC; BRAKE pedal release will resume openpilot ALC
-    7. GAS pedal press will not disengage openpilot ALC or Hyundai SCC
-    8. TURN SIGNALS (Left or Right) will pause openpilot ALC if the vehicle speed is below the threshold for
-       openpilot Automatic Lane Change
-    9. Event audible alerts are more relaxed to match Hyundai stock behavior
+1. openpilot ALC and Hyundai SCC can be engaged independently of each other
+2. LFA button toggles openpilot ALC
+3. SET- button enables Hyundai SCC
+4. CANCEL button only disables Hyundai SCC
+5. CRUISE (MAIN) button disables openpilot completely when OFF (strictly enforced in panda safety code)
+6. BRAKE pedal press will pause openpilot ALC; BRAKE pedal release will resume openpilot ALC
+7. GAS pedal press will not disengage openpilot ALC or Hyundai SCC
+8. TURN SIGNALS (Left or Right) will pause openpilot ALC if the vehicle speed is below the threshold for
+   openpilot Automatic Lane Change
+9. Event audible alerts are more relaxed to match Hyundai stock behavior
+<br></br>
+
+**Personal Settings (applicable to 2021 Hyundai Sonata N Line)**
+* PID Lateral Tune
+    * `kp` = 2.5
+    * `ki` = 0.05
+    * `kd` = 2.5
+    * `kf` = 0.00005
+* Custom openpilot Engage/Disengage Sounds
+    * Tesla inspired sounds
 
 What is openpilot?
 ------
