@@ -44,6 +44,7 @@ The goal of this fork is to enhance the user driving experience for Hyundai vehi
 
 **Personal Settings (applicable to 2021 Hyundai Sonata N Line)**
 * PID Lateral Tune
+    * `steerRatio` = 12.35
     * `kp` = 2.5
     * `ki` = 0.05
     * `kd` = 2.5
