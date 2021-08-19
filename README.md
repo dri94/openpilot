@@ -52,6 +52,8 @@ The goal of this fork is to enhance the user driving experience for Hyundai vehi
 * `tireStiffnessFactor` = 0.65
 * Custom openpilot Engage/Disengage Sounds
     * Tesla inspired sounds
+* Prebuilt enabled for faster boot time
+* Custom boot screen
 
 What is openpilot?
 ------
