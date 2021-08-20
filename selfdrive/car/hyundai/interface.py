@@ -3,7 +3,7 @@ from cereal import car
 from common.realtime import DT_CTRL
 from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.events import ET
-from selfdrive.car.hyundai.values import CAR, EV_CAR, HYBRID_CAR, Buttons
+from selfdrive.car.hyundai.values import CAR, EV_CAR, HYBRID_CAR, Buttons, FEATURES
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint
 from selfdrive.car.interfaces import CarInterfaceBase
 
@@ -274,6 +274,7 @@ class CarInterface(CarInterfaceBase):
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
 
     ret.lfaEnabled = self.CS.lfaEnabled
+    ret.accMainEnabled = self.CS.accMainEnabled
     ret.accEnabled = self.CS.accEnabled
     ret.leftBlinkerOn = self.CS.leftBlinkerOn
     ret.rightBlinkerOn = self.CS.rightBlinkerOn
@@ -311,11 +312,20 @@ class CarInterface(CarInterfaceBase):
       buttonEvents.append(be)
 
     # LFA BUTTON
-    if self.CS.out.lfaEnabled != self.CS.lfaEnabled:
-      be = car.CarState.ButtonEvent.new_message()
-      be.pressed = True
-      be.type = ButtonType.altButton1
-      buttonEvents.append(be)
+    if self.CP.carFingerprint in FEATURES["sonata_all"]:
+      if self.CS.out.lfaEnabled != self.CS.lfaEnabled:
+        be = car.CarState.ButtonEvent.new_message()
+        be.pressed = True
+        be.type = ButtonType.altButton1
+        buttonEvents.append(be)
+
+    # ACC MAIN BUTTON
+    if self.CP.carFingerprint in FEATURES["genesis_all"]:
+      if self.CS.out.accMainEnabled != self.CS.accMainEnabled:
+        be = car.CarState.ButtonEvent.new_message()
+        be.pressed = True
+        be.type = ButtonType.altButton1
+        buttonEvents.append(be)
 
     ret.buttonEvents = buttonEvents
 
@@ -335,7 +345,7 @@ class CarInterface(CarInterfaceBase):
     enable_pressed = False
     enable_from_brake = False
 
-    if self.CS.disengageByBrake and not ret.brakePressed and self.CS.lfaEnabled:
+    if self.CS.disengageByBrake and not ret.brakePressed and (self.CS.lfaEnabled or self.CS.accMainEnabled):
       enable_pressed = True
       enable_from_brake = True
 
@@ -352,23 +362,34 @@ class CarInterface(CarInterfaceBase):
 
       # do disable on LFA button if ACC is disabled
       if b.type in [ButtonType.altButton1] and b.pressed:
-        if not self.CS.lfaEnabled: #disabled LFA
-          if not ret.cruiseState.enabled:
-            events.add(EventName.buttonCancel)
-          else:
-            events.add(EventName.manualSteeringRequired)
-        else: #enabled LFA
+        if self.CP.carFingerprint in FEATURES["sonata_all"]:
+          if not self.CS.lfaEnabled: #disabled LFA
+            if not ret.cruiseState.enabled:
+              events.add(EventName.buttonCancel)
+            else:
+              events.add(EventName.manualSteeringRequired)
+        if self.CP.carFingerprint in FEATURES["genesis_all"]:
+          if not self.CS.accMainEnabled: #disabled ACC MAIN
+            if not ret.cruiseState.enabled:
+              events.add(EventName.buttonCancel)
+            else:
+              events.add(EventName.manualSteeringRequired)
+        else: #enabled LFA or ACC MAIN
           if not ret.cruiseState.enabled:
             enable_pressed = True
 
       # do disable on button down
       if b.type == ButtonType.cancel and b.pressed:
-        if not self.CS.lfaEnabled:
-          events.add(EventName.buttonCancel)
+        if self.CP.carFingerprint in FEATURES["sonata_all"]:
+          if not self.CS.lfaEnabled:
+            events.add(EventName.buttonCancel)
+        if self.CP.carFingerprint in FEATURES["genesis_all"]:
+          if not self.CS.accMainEnabled:
+            events.add(EventName.buttonCancel)
         else:
           events.add(EventName.manualLongitudinalRequired)
 
-    if (ret.cruiseState.enabled or self.CS.lfaEnabled) and enable_pressed:
+    if (ret.cruiseState.enabled or (self.CS.lfaEnabled or self.CS.accMainEnabled)) and enable_pressed:
       if enable_from_brake:
         events.add(EventName.silentButtonEnable)
       else:

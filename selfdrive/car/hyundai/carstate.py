@@ -24,6 +24,7 @@ class CarState(CarStateBase):
     self.resumeAvailable = False
     self.accEnabled = False
     self.lfaEnabled = False
+    self.accMainEnabled = False
     self.leftBlinkerOn = False
     self.rightBlinkerOn = False
     self.disengageByBrake = False
@@ -36,10 +37,15 @@ class CarState(CarStateBase):
     self.lfa_enabled = None
     self.prev_lfa_enabled = None
 
+    self.acc_main_enabled = None
+    self.prev_acc_main_enabled = None
+
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
 
     self.prev_lfa_enabled = self.lfa_enabled
+
+    self.prev_acc_main_enabled = self.acc_main_enabled
 
     ret.doorOpen = any([cp.vl["CGW1"]["CF_Gway_DrvDrSw"], cp.vl["CGW1"]["CF_Gway_AstDrSw"],
                         cp.vl["CGW2"]["CF_Gway_RLDrSw"], cp.vl["CGW2"]["CF_Gway_RRDrSw"]])
@@ -55,10 +61,17 @@ class CarState(CarStateBase):
 
     self.belowLaneChangeSpeed = ret.vEgo < (30 * CV.MPH_TO_MS)
 
-    self.lfa_enabled = cp.vl["BCM_PO_11"]["LFA_Pressed"] == 0
+    if self.CP.carFingerprint in FEATURES["sonata_all"]:
+      self.lfa_enabled = cp.vl["BCM_PO_11"]["LFA_Pressed"] == 0
 
     if self.prev_lfa_enabled is None:
       self.prev_lfa_enabled = self.lfa_enabled
+
+    if self.CP.carFingerprint in FEATURES["genesis_all"]:
+      self.acc_main_enabled = cp.vl["SCC11"]["MainMode_ACC"] == 0
+
+    if self.prev_acc_main_enabled is None:
+      self.prev_acc_main_enabled = self.acc_main_enabled
 
     ret.standstill = ret.vEgoRaw < 0.1
 
@@ -85,11 +98,17 @@ class CarState(CarStateBase):
       ret.cruiseState.standstill = cp.vl["SCC11"]["SCCInfoDisplay"] == 4.
 
     if ret.cruiseState.available:
-      if self.prev_lfa_enabled != 1: #1 == not LFA button
-        if self.lfa_enabled == 1:
-          self.lfaEnabled = not self.lfaEnabled
+      if self.CP.carFingerprint in FEATURES["sonata_all"]:
+        if self.prev_lfa_enabled != 1: #1 == not LFA button
+          if self.lfa_enabled == 1:
+            self.lfaEnabled = not self.lfaEnabled
+      if self.CP.carFingerprint in FEATURES["genesis_all"]:
+        if self.prev_acc_main_enabled != 1: #1 == not ACC Main button
+          if self.acc_main_enabled == 1:
+            self.accMainEnabled = not self.accMainEnabled
     else:
       self.lfaEnabled = False
+      self.accMainEnabled = False
       self.accEnabled = False
 
     if ret.cruiseState.enabled:
@@ -101,7 +120,7 @@ class CarState(CarStateBase):
 
     ret.steerWarning = False
 
-    if self.lfaEnabled:
+    if self.lfaEnabled or self.accMainEnabled:
       steer_state = cp.vl["MDPS12"]["CF_Mdps_ToiActive"]  # 0 NOT ACTIVE, 1 ACTIVE
       if (self.automaticLaneChange and not self.belowLaneChangeSpeed and (self.rightBlinkerOn or self.leftBlinkerOn)) or not (self.rightBlinkerOn or self.leftBlinkerOn):
         ret.steerWarning = cp.vl["MDPS12"]["CF_Mdps_ToiUnavail"] != 0 or cp.vl["MDPS12"]["CF_Mdps_ToiFlt"] != 0

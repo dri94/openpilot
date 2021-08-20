@@ -147,6 +147,15 @@ static int hyundai_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
       lfa_pressed_prev = lfa_pressed;
     }
 
+    if (addr == 1056) {
+      bool acc_main_on = GET_BYTES_04(to_push) & 0x1; // ACC main_on signal
+      if (acc_main_on && !acc_main_on_prev)
+      {
+        controls_allowed = 1;
+      }
+      acc_main_on_prev = acc_main_on;
+    }
+
     // enter controls on rising edge of ACC, exit controls on ACC off
     if (addr == 1057) {
       // 2 bits: 13-14
