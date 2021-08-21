@@ -55,7 +55,7 @@ class CarState(CarStateBase):
 
     self.belowLaneChangeSpeed = ret.vEgo < (30 * CV.MPH_TO_MS)
 
-    self.cruise_main_enabled = cp.vl["SCC11"]["MainMode_ACC"] == 0
+    self.cruise_main_enabled = cp.vl["CLU11"]["CF_Clu_CruiseSwMain"] == 0
 
     if self.prev_cruise_main_enabled is None:
       self.prev_cruise_main_enabled = self.cruise_main_enabled
