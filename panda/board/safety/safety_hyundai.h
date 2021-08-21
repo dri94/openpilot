@@ -139,7 +139,7 @@ static int hyundai_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     }
 
     if (addr == 1056) {
-      bool cruise_main_pressed = (GET_BYTES_04(to_push) >> 4) & 0x1; // CRUISE MAIN on signal
+      bool cruise_main_pressed = GET_BYTES_04(to_push) & 0x1; // CRUISE MAIN on signal
       if (cruise_main_pressed && !cruise_main_pressed_prev)
       {
         controls_allowed = 1;
