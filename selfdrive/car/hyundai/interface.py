@@ -272,7 +272,7 @@ class CarInterface(CarInterfaceBase):
     ret.canValid = self.cp.can_valid and self.cp_cam.can_valid
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
 
-    ret.lfaEnabled = self.CS.lfaEnabled
+    ret.cruiseMainEnabled = self.CS.cruiseMainEnabled
     ret.accEnabled = self.CS.accEnabled
     ret.leftBlinkerOn = self.CS.leftBlinkerOn
     ret.rightBlinkerOn = self.CS.rightBlinkerOn
@@ -309,8 +309,8 @@ class CarInterface(CarInterfaceBase):
         be.type = ButtonType.decelCruise
       buttonEvents.append(be)
 
-    # LFA BUTTON
-    if self.CS.out.lfaEnabled != self.CS.lfaEnabled:
+    # CRUISE MAIN BUTTON
+    if self.CS.out.cruiseMainEnabled != self.CS.cruiseMainEnabled:
       be = car.CarState.ButtonEvent.new_message()
       be.pressed = True
       be.type = ButtonType.altButton1
@@ -334,7 +334,7 @@ class CarInterface(CarInterfaceBase):
     enable_pressed = False
     enable_from_brake = False
 
-    if self.CS.disengageByBrake and not ret.brakePressed and self.CS.lfaEnabled:
+    if self.CS.disengageByBrake and not ret.brakePressed and self.CS.cruiseMainEnabled:
       enable_pressed = True
       enable_from_brake = True
 
@@ -349,25 +349,25 @@ class CarInterface(CarInterfaceBase):
       if b.type in [ButtonType.setCruise] and not b.pressed:
         enable_pressed = True
 
-      # do disable on LFA button if ACC is disabled
+      # do disable on CRUISE MAIN button if ACC is disabled
       if b.type in [ButtonType.altButton1] and b.pressed:
-        if not self.CS.lfaEnabled: #disabled LFA
+        if not self.CS.cruiseMainEnabled: #disabled CRUISE MAIN
           if not ret.cruiseState.enabled:
             events.add(EventName.buttonCancel)
           else:
             events.add(EventName.manualSteeringRequired)
-        else: #enabled LFA
+        else: #enabled CRUISE MAIN
           if not ret.cruiseState.enabled:
             enable_pressed = True
 
       # do disable on button down
       if b.type == ButtonType.cancel and b.pressed:
-        if not self.CS.lfaEnabled:
+        if not self.CS.cruiseMainEnabled:
           events.add(EventName.buttonCancel)
         else:
           events.add(EventName.manualLongitudinalRequired)
 
-    if (ret.cruiseState.enabled or self.CS.lfaEnabled) and enable_pressed:
+    if (ret.cruiseState.enabled or self.CS.cruiseMainEnabled) and enable_pressed:
       if enable_from_brake:
         events.add(EventName.silentButtonEnable)
       else:

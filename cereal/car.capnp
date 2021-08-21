@@ -194,7 +194,7 @@ struct CarState {
   # clutch (manual transmission only)
   clutchPressed @28 :Bool;
 
-  lfaEnabled @37 :Bool;
+  cruiseMainEnabled @37 :Bool;
   leftBlinkerOn @38 :Bool;
   rightBlinkerOn @39 :Bool;
   disengageByBrake @40 :Bool;

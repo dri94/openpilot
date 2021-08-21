@@ -138,13 +138,13 @@ static int hyundai_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
       update_sample(&torque_driver, torque_driver_new);
     }
 
-    if (addr == 913) {
-      bool lfa_pressed = (GET_BYTES_04(to_push) >> 4) & 0x1; // LFA on signal
-      if (lfa_pressed && !lfa_pressed_prev)
+    if (addr == 1056) {
+      bool cruise_main_pressed = (GET_BYTES_04(to_push) >> 4) & 0x1; // CRUISE MAIN on signal
+      if (cruise_main_pressed && !cruise_main_pressed_prev)
       {
         controls_allowed = 1;
       }
-      lfa_pressed_prev = lfa_pressed;
+      cruise_main_pressed_prev = cruise_main_pressed;
     }
 
     // enter controls on rising edge of ACC, exit controls on ACC off
@@ -159,13 +159,13 @@ static int hyundai_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
     if (addr == 1056) {
       // 2 bits: 13-14
-      bool acc_main_on = GET_BYTES_04(to_push) & 0x1; // ACC main_on signal
-      if (acc_main_on_prev != acc_main_on)
+      bool cruise_main_pressed = GET_BYTES_04(to_push) & 0x1; // ACC main_on signal
+      if (cruise_main_pressed_prev != cruise_main_pressed)
       {
         disengageFromBrakes = false;
         controls_allowed = 0;
       }
-      acc_main_on_prev = acc_main_on;
+      cruise_main_pressed_prev = cruise_main_pressed;
     }
 
     // read gas pressed signal
