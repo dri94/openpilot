@@ -93,12 +93,7 @@ class CarState(CarStateBase):
       ret.cruiseState.enabled = cp.vl["TCS13"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
     else:
-      if self.CP.carFingerprint in FEATURES["sonata_all"]:
-        ret.cruiseState.available = cp.vl["SCC11"]["MainMode_ACC"] == 0 or cp.vl["SCC11"]["MainMode_ACC"] == 1
-      elif self.CP.carFingerprint in FEATURES["genesis_all"]:
-        ret.cruiseState.available = cp.vl["SCC11"]["MainMode_ACC"] == 1
-      else:
-        ret.cruiseState.available = cp.vl["SCC11"]["MainMode_ACC"] == 1
+      ret.cruiseState.available = cp.vl["SCC11"]["MainMode_ACC"] == 1
       ret.cruiseState.enabled = cp.vl["SCC12"]["ACCMode"] != 0
       ret.cruiseState.standstill = cp.vl["SCC11"]["SCCInfoDisplay"] == 4.
 
