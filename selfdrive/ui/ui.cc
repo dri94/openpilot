@@ -209,6 +209,7 @@ static void update_state(UIState *s) {
     scene.lateralPlan.lProb = data.getLProb();
     scene.lateralPlan.rProb = data.getRProb();
     scene.lateralPlan.lanelessModeStatus = data.getLanelessMode();
+    }
 }
 
 static void update_params(UIState *s) {
