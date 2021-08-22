@@ -125,14 +125,13 @@ static void ui_draw_track(UIState *s, const line_vertices_data &vd)
   int green_lvl = 0;
 
   NVGpaint track_bg;
-  if (s->scene.controls_state.getEnabled() && !s->scene.comma_stock_ui) {
+  if (s->scene.controls_state.getEnabled()) {
     if (steerOverride) {
       track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
         COLOR_BLACK_ALPHA(80), COLOR_BLACK_ALPHA(20));
     } else if (!scene.lateralPlan.lanelessModeStatus) {
         red_lvl = 0;
         green_lvl = 200;
-        }
         track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
           nvgRGBA(red_lvl, green_lvl, 0, 250), nvgRGBA(red_lvl, green_lvl, 0, 50));
     } else { // differentiate laneless mode color (Grace blue)

@@ -119,6 +119,7 @@ typedef struct UIScene {
   bool steerOverride;
   int laneless_mode;
 
+  cereal::CarState::Reader car_state;
   cereal::ControlsState::Reader controls_state;
 
   // modelV2
