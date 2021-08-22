@@ -172,6 +172,7 @@ static void ui_draw_vision_lane_lines(UIState *s) {
   // paint path
   ui_draw_line(s, scene.track_vertices, nullptr, &track_bg);
 ***/
+  }
 }
 
 // Draw all world space objects.
