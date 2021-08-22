@@ -118,6 +118,8 @@ typedef struct UIScene {
 
   int laneless_mode;
 
+  cereal::ControlsState::Reader controls_state;
+
   // modelV2
   float lane_line_probs[4];
   float road_edge_stds[2];
