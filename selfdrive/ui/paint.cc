@@ -120,7 +120,6 @@ static void ui_draw_track(UIState *s, const line_vertices_data &vd)
   }
   nvgClosePath(s->vg);
 
-  int steerOverride = s->scene.car_state.getSteeringPressed();
   int red_lvl = 0;
   int green_lvl = 0;
 
