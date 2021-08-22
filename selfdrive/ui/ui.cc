@@ -111,6 +111,8 @@ static void update_model(UIState *s, const cereal::ModelDataV2::Reader &model) {
     update_line_data(s, road_edges[i], 0.025, 0, &scene.road_edge_vertices[i], max_idx);
   }
 
+  scene.lateral_plan = sm["lateralPlan"].getLateralPlan();
+
   // update path
   auto lead_one = (*s->sm)["radarState"].getRadarState().getLeadOne();
   if (lead_one.getStatus()) {
@@ -209,7 +211,7 @@ static void update_state(UIState *s) {
     scene.lateralPlan.lProb = data.getLProb();
     scene.lateralPlan.rProb = data.getRProb();
     scene.lateralPlan.lanelessModeStatus = data.getLanelessMode();
-    }
+  }
 }
 
 static void update_params(UIState *s) {
