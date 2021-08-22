@@ -116,7 +116,7 @@ typedef struct UIScene {
 
   cereal::PandaState::PandaType pandaType;
 
-  bool steerOverride
+  bool steerOverride;
   int laneless_mode;
 
   cereal::ControlsState::Reader controls_state;
