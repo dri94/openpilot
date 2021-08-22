@@ -1,6 +1,7 @@
 #include "selfdrive/ui/ui.h"
 
 #include <unistd.h>
+#include <string>
 
 #include <cassert>
 #include <cmath>
