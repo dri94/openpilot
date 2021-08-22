@@ -134,7 +134,7 @@ static void ui_draw_track(UIState *s, const line_vertices_data &vd)
         green_lvl = 200;
         track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
           nvgRGBA(red_lvl, green_lvl, 0, 250), nvgRGBA(red_lvl, green_lvl, 0, 50));
-    } else { // differentiate laneless mode color (Grace blue)
+    } else if (scene.lateralPlan.lanelessModeStatus) { // differentiate laneless mode color (Grace blue)
       track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
           nvgRGBA(0, 100, 255, 250), nvgRGBA(0, 100, 255, 50));
     }
