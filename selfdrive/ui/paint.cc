@@ -108,26 +108,6 @@ static void ui_draw_line(UIState *s, const line_vertices_data &vd, NVGcolor *col
   nvgFill(s->vg);
 }
 
-static void ui_draw_track(UIState *s, const line_vertices_data &vd)
-{
-  const UIScene &scene = s->scene;
-  if (vd.cnt == 0) return;
-
-  nvgBeginPath(s->vg);
-  nvgMoveTo(s->vg, vd.v[0].x, vd.v[0].y);
-  for (int i=1; i<vd.cnt; i++) {
-    nvgLineTo(s->vg, vd.v[i].x, vd.v[i].y);
-  }
-  nvgClosePath(s->vg);
-  } else {
-    // Draw white vision track
-    track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
-                                COLOR_WHITE_ALPHA(150), COLOR_WHITE_ALPHA(100));
-  }
-
-  nvgFillPaint(s->vg, track_bg);
-  nvgFill(s->vg);
-}
 
 static void draw_vision_frame(UIState *s) {
   glBindVertexArray(s->frame_vao);
