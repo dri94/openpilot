@@ -141,6 +141,12 @@ typedef struct UIScene {
 
   struct _LateralPlan
   {
+    float laneWidth;
+
+    float dProb;
+    float lProb;
+    float rProb;
+
     bool lanelessModeStatus;
   } lateralPlan;
 
