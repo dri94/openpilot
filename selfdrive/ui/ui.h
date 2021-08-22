@@ -121,6 +121,7 @@ typedef struct UIScene {
 
   cereal::CarState::Reader car_state;
   cereal::ControlsState::Reader controls_state;
+  cereal::LateralPlan::Reader lateral_plan;
 
   // modelV2
   float lane_line_probs[4];
@@ -140,6 +141,12 @@ typedef struct UIScene {
 
   struct _LateralPlan
   {
+    float laneWidth;
+
+    float dProb;
+    float lProb;
+    float rProb;
+
     bool lanelessModeStatus;
   } lateralPlan;
 

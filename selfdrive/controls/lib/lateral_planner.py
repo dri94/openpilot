@@ -28,14 +28,14 @@ DESIRES = {
     LaneChangeState.laneChangeFinishing: log.LateralPlan.Desire.none,
   },
   LaneChangeDirection.left: {
-    LaneChangeState.off: log.LateralPlan.Desire.keepLeft,
-    LaneChangeState.preLaneChange: log.LateralPlan.Desire.keepLeft,
+    LaneChangeState.off: log.LateralPlan.Desire.none,
+    LaneChangeState.preLaneChange: log.LateralPlan.Desire.none,
     LaneChangeState.laneChangeStarting: log.LateralPlan.Desire.laneChangeLeft,
     LaneChangeState.laneChangeFinishing: log.LateralPlan.Desire.laneChangeLeft,
   },
   LaneChangeDirection.right: {
-    LaneChangeState.off: log.LateralPlan.Desire.keepRight,
-    LaneChangeState.preLaneChange: log.LateralPlan.Desire.keepRight,
+    LaneChangeState.off: log.LateralPlan.Desire.none,
+    LaneChangeState.preLaneChange: log.LateralPlan.Desire.none,
     LaneChangeState.laneChangeStarting: log.LateralPlan.Desire.laneChangeRight,
     LaneChangeState.laneChangeFinishing: log.LateralPlan.Desire.laneChangeRight,
   },
@@ -99,7 +99,7 @@ class LateralPlanner():
     measured_curvature = sm['controlsState'].curvature
 
     md = sm['modelV2']
-    self.LP.parse_model(sm['modelV2'])
+    self.LP.parse_model(sm['modelV2'], sm, v_ego)
     if len(md.position.x) == TRAJECTORY_SIZE and len(md.orientation.x) == TRAJECTORY_SIZE:
       self.path_xyz = np.column_stack([md.position.x, md.position.y, md.position.z])
       self.t_idxs = np.array(md.position.t)
@@ -198,7 +198,7 @@ class LateralPlanner():
       self.laneless_mode_status = True
       self.laneless_mode_status_buffer = True
     elif self.laneless_mode == 2 and ((self.LP.lll_prob + self.LP.rll_prob)/2 > 0.5) and \
-      self.laneless_mode_status_buffer and self.lane_change_state == LaneChangeState.off:
+     self.laneless_mode_status_buffer and self.lane_change_state == LaneChangeState.off:
       d_path_xyz = self.LP.get_d_path(v_ego, self.t_idxs, self.path_xyz)
       self.libmpc.set_weights(MPC_COST_LAT.PATH, MPC_COST_LAT.HEADING, CP.steerRateCost)
       self.laneless_mode_status = False
