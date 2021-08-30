@@ -59,15 +59,15 @@ class CarState(CarStateBase):
 
     self.belowLaneChangeSpeed = ret.vEgo < (30 * CV.MPH_TO_MS)
 
-    if self.CP.carFingerprint in FEATURES["use_lfa_button"]:
+    if self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
       self.lfa_enabled = cp.vl["BCM_PO_11"]["LFA_Pressed"] == 0
-    elif self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
+    elif self.CP.carFingerprint in FEATURES["use_lfa_button"]:
       self.acc_main_enabled = cp.vl["CLU11"]["CF_Clu_CruiseSwMain"] == 0
 
-    if self.CP.carFingerprint in FEATURES["use_lfa_button"]:
+    if self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
       if self.prev_lfa_enabled is None:
         self.prev_lfa_enabled = self.lfa_enabled
-    elif self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
+    elif self.CP.carFingerprint in FEATURES["use_lfa_button"]:
       if self.prev_acc_main_enabled is None:
         self.prev_acc_main_enabled = self.acc_main_enabled
 
@@ -96,18 +96,18 @@ class CarState(CarStateBase):
       ret.cruiseState.standstill = cp.vl["SCC11"]["SCCInfoDisplay"] == 4.
 
     if ret.cruiseState.available:
-      if self.CP.carFingerprint in FEATURES["use_lfa_button"]:
+      if self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
         if self.prev_lfa_enabled != 1: #1 == not LFA button
           if self.lfa_enabled == 1:
             self.lfaEnabled = not self.lfaEnabled
-      elif self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
+      elif self.CP.carFingerprint in FEATURES["use_lfa_button"]:
         if self.prev_acc_main_enabled != 1: #1 == not ACC Main button
           if self.acc_main_enabled == 1:
             self.accMainEnabled = not self.accMainEnabled
     else:
-      if self.CP.carFingerprint in FEATURES["use_lfa_button"]:
+      if self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
         self.lfaEnabled = False
-      elif self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
+      elif self.CP.carFingerprint in FEATURES["use_lfa_button"]:
         self.accMainEnabled = False
       self.accEnabled = False
 
