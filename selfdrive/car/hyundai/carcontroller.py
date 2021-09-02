@@ -73,12 +73,12 @@ class CarController():
     disengage_from_brakes = (CS.lfaEnabled or CS.accMainEnabled) and not lkas_active
 
     # show LFA "white_wheel" and LKAS "White car + lanes" when belowLaneChangeSpeed and (leftBlinkerOn or rightBlinkerOn)
-    below_lane_change_speed = (CS.lfaEnabled or CS.accMainEnabled) and CS.belowLaneChangeSpeed and (CS.leftBlinkerOn or CS.rightBlinkerOn) and not lkas_active
+    below_lane_change_speed = (CS.lfaEnabled or CS.accMainEnabled) and (CS.belowLaneChangeSpeed and (CS.leftBlinkerOn or CS.rightBlinkerOn)) and not lkas_active
 
     if not (disengage_from_brakes or below_lane_change_speed):
       self.disengage_blink = cur_time
 
-    disengage_blinking_icon = (disengage_from_brakes or below_lane_change_speed) and not ((cur_time - self.disengage_blink) > 2)
+    disengage_blinking_icon = (disengage_from_brakes or below_lane_change_speed) and not ((cur_time - self.disengage_blink) > 1)
 
     can_sends.append(create_lkas11(self.packer, frame, self.car_fingerprint, apply_steer, lkas_active,
                                    CS.lkas11, sys_warning, sys_state, enabled, disengage_from_brakes, below_lane_change_speed, disengage_blinking_icon,
