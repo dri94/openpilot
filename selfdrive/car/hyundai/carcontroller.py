@@ -61,6 +61,14 @@ class CarController():
     if not lkas_active:
       apply_steer = 0
 
+    self.apply_steer_last = apply_steer
+
+    sys_warning, sys_state, left_lane_warning, right_lane_warning = \
+      process_hud_alert(enabled, self.car_fingerprint, visual_alert,
+                        left_lane, right_lane, left_lane_depart, right_lane_depart)
+
+    can_sends = []
+
     # show LFA "white_wheel" and LKAS "White car + lanes" when disengageFromBrakes = True in safety.h
     disengage_from_brakes = (CS.lfaEnabled or CS.accMainEnabled) and not lkas_active
 
@@ -71,14 +79,6 @@ class CarController():
       self.disengage_blink = cur_time
 
     disengage_blinking_icon = (disengage_from_brakes or below_lane_change_speed) and not ((cur_time - self.disengage_blink) > 2)
-
-    self.apply_steer_last = apply_steer
-
-    sys_warning, sys_state, left_lane_warning, right_lane_warning = \
-      process_hud_alert(enabled, self.car_fingerprint, visual_alert,
-                        left_lane, right_lane, left_lane_depart, right_lane_depart)
-
-    can_sends = []
 
     can_sends.append(create_lkas11(self.packer, frame, self.car_fingerprint, apply_steer, lkas_active,
                                    CS.lkas11, sys_warning, sys_state, enabled, disengage_from_brakes, below_lane_change_speed, disengage_blinking_icon,
