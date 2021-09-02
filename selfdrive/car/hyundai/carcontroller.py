@@ -69,11 +69,11 @@ class CarController():
 
     can_sends = []
 
-    # show LFA "white_wheel" and LKAS "White car + lanes" when disengageFromBrakes = True in safety.h
+    # show LFA "white_wheel" and LKAS "White car + lanes" when disengageFromBrakes
     disengage_from_brakes = (CS.lfaEnabled or CS.accMainEnabled) and not lkas_active
 
     # show LFA "white_wheel" and LKAS "White car + lanes" when belowLaneChangeSpeed and (leftBlinkerOn or rightBlinkerOn)
-    below_lane_change_speed = (CS.lfaEnabled or CS.accMainEnabled) and (CS.leftBlinkerOn or CS.rightBlinkerOn) and not lkas_active
+    below_lane_change_speed = (CS.lfaEnabled or CS.accMainEnabled) and not lkas_active and (CS.leftBlinkerOn or CS.rightBlinkerOn)
 
     if not (disengage_from_brakes or below_lane_change_speed):
       self.disengage_blink = cur_time
