@@ -38,7 +38,7 @@ class CarController():
     self.packer = CANPacker(dbc_name)
 
     self.signal_last = 0.
-    self.brake_disengage_blink = 0.
+    self.disengage_blink = 0.
     self.apply_steer_last = 0
     self.car_fingerprint = CP.carFingerprint
     self.steer_rate_limited = False
@@ -60,7 +60,17 @@ class CarController():
 
     if not lkas_active:
       apply_steer = 0
-      self.brake_disengage_blink = cur_time
+
+    # show LFA "white_wheel" and LKAS "White car + lanes" when disengageFromBrakes = True in safety.h
+    disengage_from_brakes = (CS.lfaEnabled or CS.accMainEnabled) and not lkas_active
+
+    # show LFA "white_wheel" and LKAS "White car + lanes" when belowLaneChangeSpeed and (leftBlinkerOn or rightBlinkerOn)
+    below_lane_change_speed = (CS.lfaEnabled or CS.accMainEnabled) and CS.belowLaneChangeSpeed and (CS.leftBlinkerOn or CS.rightBlinkerOn)
+
+    if not (disengage_from_brakes or below_lane_change_speed):
+      self.disengage_blink = cur_time
+
+    disengage_blinking_icon = (disengage_from_brakes or below_lane_change_speed) and not ((cur_time - self.disengage_blink) > 2)
 
     self.apply_steer_last = apply_steer
 
@@ -69,14 +79,6 @@ class CarController():
                         left_lane, right_lane, left_lane_depart, right_lane_depart)
 
     can_sends = []
-
-    # show LFA "white_wheel" and LKAS "White car + lanes" when disengageFromBrakes = True in safety.h
-    disengage_from_brakes = (CS.lfaEnabled or CS.accMainEnabled) and not lkas_active
-
-    disengage_blinking_icon = (CS.lfaEnabled or CS.accMainEnabled) and not lkas_active and not ((cur_time - self.brake_disengage_blink) < 1)
-
-    # show LFA "white_wheel" and LKAS "White car + lanes" when belowLaneChangeSpeed and (leftBlinkerOn or rightBlinkerOn)
-    below_lane_change_speed = CS.belowLaneChangeSpeed and (CS.leftBlinkerOn or CS.rightBlinkerOn) and not lkas_active
 
     can_sends.append(create_lkas11(self.packer, frame, self.car_fingerprint, apply_steer, lkas_active,
                                    CS.lkas11, sys_warning, sys_state, enabled, disengage_from_brakes, below_lane_change_speed, disengage_blinking_icon,
