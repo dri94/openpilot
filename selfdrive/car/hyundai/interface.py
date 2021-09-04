@@ -254,9 +254,6 @@ class CarInterface(CarInterfaceBase):
 
     ret.enableBsm = 0x58b in fingerprint[0]
 
-    if Params().get_bool("EnableSMDPS"):
-      ret.minSteerSpeed = 0.
-
     return ret
 
   def update(self, c, can_strings):
@@ -325,13 +322,16 @@ class CarInterface(CarInterfaceBase):
     #events
     events = self.create_common_events(ret, pcm_enable=False)
 
+    enable_smdps = Params().get_bool("EnableSMDPS")
+
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
-    if ret.vEgo < (self.CP.minSteerSpeed + 0.2) and self.CP.minSteerSpeed > 10.:
-      self.low_speed_alert = True
-    if ret.vEgo > (self.CP.minSteerSpeed + 0.7):
-      self.low_speed_alert = False
-    if self.low_speed_alert:
-      events.add(car.CarEvent.EventName.belowSteerSpeed)
+    if not enable_smdps:
+      if ret.vEgo < (self.CP.minSteerSpeed + 0.2) and self.CP.minSteerSpeed > 10.:
+        self.low_speed_alert = True
+      if ret.vEgo > (self.CP.minSteerSpeed + 0.7):
+        self.low_speed_alert = False
+      if self.low_speed_alert:
+        events.add(car.CarEvent.EventName.belowSteerSpeed)
 
     self.CS.disengageByBrake = self.CS.disengageByBrake or ret.disengageByBrake
 
