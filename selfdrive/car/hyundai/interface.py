@@ -306,14 +306,14 @@ class CarInterface(CarInterfaceBase):
       buttonEvents.append(be)
 
     # LFA BUTTON
-    if self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
+    if self.CP.carFingerprint in FEATURES["use_lfa_button"]:
       if self.CS.out.lfaEnabled != self.CS.lfaEnabled:
         be = car.CarState.ButtonEvent.new_message()
         be.pressed = True
         be.type = ButtonType.altButton1
         buttonEvents.append(be)
     # ACC MAIN BUTTON
-    elif self.CP.carFingerprint in FEATURES["use_lfa_button"]:
+    elif self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
       if self.CS.out.accMainEnabled != self.CS.accMainEnabled:
         be = car.CarState.ButtonEvent.new_message()
         be.pressed = True
@@ -354,7 +354,7 @@ class CarInterface(CarInterfaceBase):
         enable_pressed = True
 
       # do disable on LFA button if ACC is disabled
-      if self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
+      if self.CP.carFingerprint in FEATURES["use_lfa_button"]:
         if b.type in [ButtonType.altButton1] and b.pressed:
           if not self.CS.lfaEnabled: #disabled LFA
             if not ret.cruiseState.enabled:
@@ -365,7 +365,7 @@ class CarInterface(CarInterfaceBase):
             if not ret.cruiseState.enabled:
               enable_pressed = True
       # do disable on ACC Main button if ACC is disabled
-      elif self.CP.carFingerprint in FEATURES["use_lfa_button"]:
+      elif self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
         if b.type in [ButtonType.altButton1] and b.pressed:
           if not self.CS.accMainEnabled: #disabled ACC Main
             if not ret.cruiseState.enabled:
@@ -377,13 +377,13 @@ class CarInterface(CarInterfaceBase):
               enable_pressed = True
 
       # do disable on button down
-      if self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
+      if self.CP.carFingerprint in FEATURES["use_lfa_button"]:
         if b.type == ButtonType.cancel and b.pressed:
           if not self.CS.lfaEnabled:
             events.add(EventName.buttonCancel)
           else:
             events.add(EventName.manualLongitudinalRequired)
-      elif self.CP.carFingerprint in FEATURES["use_lfa_button"]:
+      elif self.CP.carFingerprint not in FEATURES["use_lfa_button"]:
         if b.type == ButtonType.cancel and b.pressed:
           if not self.CS.accMainEnabled:
             events.add(EventName.buttonCancel)
