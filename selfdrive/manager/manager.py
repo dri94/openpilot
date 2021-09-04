@@ -39,6 +39,7 @@ def manager_init():
     ("LanelessMode", "0"),
     ("CarModel", ""),
     ("CarModelAbb", ""),
+    ("EnableSMDPS", "0"),
   ]
   if not PC:
     default_params.append(("LastUpdateTime", datetime.datetime.utcnow().isoformat().encode('utf8')))

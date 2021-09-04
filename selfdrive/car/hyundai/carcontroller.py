@@ -1,4 +1,5 @@
 from cereal import car
+from common.params import Params
 from common.realtime import DT_CTRL
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.hyundai.hyundaican import create_lkas11, create_clu11, create_lfahda_mfc
@@ -57,6 +58,12 @@ class CarController():
 
     # disable when temp fault is active, or below LKA minimum speed
     lkas_active = enabled and not CS.out.steerWarning and CS.out.vEgo >= CS.CP.minSteerSpeed and (CS.lfaEnabled or CS.accMainEnabled) and ((CS.automaticLaneChange and not CS.belowLaneChangeSpeed) or ((not ((cur_time - self.signal_last) < 1) or not CS.belowLaneChangeSpeed) and not (CS.leftBlinkerOn or CS.rightBlinkerOn)))
+
+    enable_SMDPS = Params().get_bool("EnableSMDPS")
+
+    # fix for Genesis hard fault at low speed
+    if not enable_SMDPS and CS.out.vEgo < 16.7 and self.car_fingerprint == CAR.HYUNDAI_GENESIS:
+      lkas_active = False
 
     if not lkas_active:
       apply_steer = 0

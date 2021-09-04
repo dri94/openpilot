@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from cereal import car
+from common.params import Params
 from common.realtime import DT_CTRL
 from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.events import ET
@@ -252,6 +253,9 @@ class CarInterface(CarInterfaceBase):
                                                                          tire_stiffness_factor=tire_stiffness_factor)
 
     ret.enableBsm = 0x58b in fingerprint[0]
+
+    if Params().get_bool("EnableSMDPS"):
+      ret.minSteerSpeed = 0.
 
     return ret
 

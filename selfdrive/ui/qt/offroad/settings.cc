@@ -300,6 +300,12 @@ FeaturesPanel::FeaturesPanel(QWidget* parent) : QWidget(parent) {
   QVBoxLayout *layout = new QVBoxLayout(this);
 
   layout->addWidget(horizontal_line());
+  layout->addWidget(new ParamControl("EnableSMDPS",
+                                     "Enable Smart MDPS Support",
+                                     "Enable this will increase steering and allow steering down to 0. Reboot required.",
+                                     "../assets/offroad/icon_road.png",
+                                     this));
+  layout->addWidget(horizontal_line());
   layout->addWidget(new CarRecognition());
   layout->addWidget(horizontal_line());
 }
