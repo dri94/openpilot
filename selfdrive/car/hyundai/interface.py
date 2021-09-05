@@ -272,6 +272,8 @@ class CarInterface(CarInterfaceBase):
     ret.automaticLaneChange = self.CS.automaticLaneChange
     ret.belowLaneChangeSpeed = self.CS.belowLaneChangeSpeed
 
+    ret.engineRPM = self.CS.engineRPM
+
     buttonEvents = []
 
     # SET / CANCEL
