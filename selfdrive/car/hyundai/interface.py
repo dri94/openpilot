@@ -256,6 +256,8 @@ class CarInterface(CarInterfaceBase):
     ret.canValid = self.cp.can_valid and self.cp_cam.can_valid
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
 
+    ret.engineRPM = self.CS.engineRPM
+
     events = self.create_common_events(ret)
 
     # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)

@@ -19,6 +19,7 @@ class CarState(CarStateBase):
     else:  # preferred and elect gear methods use same definition
       self.shifter_values = can_define.dv["LVR12"]["CF_Lvr_Gear"]
 
+    self.engineRPM = 0
 
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
@@ -46,6 +47,8 @@ class CarState(CarStateBase):
     ret.steeringTorqueEps = cp.vl["MDPS12"]["CR_Mdps_OutTq"]
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     ret.steerWarning = cp.vl["MDPS12"]["CF_Mdps_ToiUnavail"] != 0 or cp.vl["MDPS12"]["CF_Mdps_ToiFlt"] != 0
+
+    ret.engineRPM = cp.vl["TCU_DCT13"]['Cluster_Engine_RPM']
 
     # cruise state
     if self.CP.openpilotLongitudinalControl:
@@ -174,6 +177,8 @@ class CarState(CarStateBase):
       ("SCCInfoDisplay", "SCC11", 0),
       ("ACC_ObjDist", "SCC11", 0),
       ("ACCMode", "SCC12", 1),
+
+      ("Cluster_Engine_RPM", "TCU_DCT13", 0),
     ]
 
     checks = [
