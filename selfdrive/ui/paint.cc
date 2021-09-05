@@ -328,6 +328,10 @@ static void ui_draw_vision_header(UIState *s) {
   ui_draw_vision_maxspeed(s);
   ui_draw_vision_speed(s);
   ui_draw_vision_event(s);
+
+  if (s->scene.end_to_end) {
+    draw_laneless_button(s);
+  }
 }
 
 //BB START: functions added for the display of various items
