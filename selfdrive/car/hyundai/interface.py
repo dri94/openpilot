@@ -254,6 +254,9 @@ class CarInterface(CarInterfaceBase):
 
     ret.enableBsm = 0x58b in fingerprint[0]
 
+    if Params().get_bool("EnableSMDPS"):
+      ret.minSteerSpeed = 0.
+
     return ret
 
   def update(self, c, can_strings):
