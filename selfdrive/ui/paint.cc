@@ -531,17 +531,17 @@ static void bb_ui_draw_measures_right(UIState *s, int bb_x, int bb_y, int bb_w )
   if (true) {
     char val_str[16];
     char uom_str[6];
-    NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
-      //show Orange if more than 6 degrees
-      //show red if  more than 12 degrees
-      if(((s->scene.angleSteers) < -6) || ((s->scene.angleSteers) > 6)) {
+    NVGcolor val_color = COLOR_GREEN_ALPHA(200);
+      //show Orange if more than 30 degrees
+      //show red if  more than 50 degrees
+      if(((s->scene.angleSteers) < -30) || ((s->scene.angleSteers) > 30)) {
         val_color = nvgRGBA(255, 188, 3, 200);
       }
-      if(((s->scene.angleSteers) < -12) || ((s->scene.angleSteers) > 12)) {
+      if(((s->scene.angleSteers) < -50) || ((s->scene.angleSteers) > 50)) {
         val_color = nvgRGBA(255, 0, 0, 200);
       }
       // steering is in degrees
-      snprintf(val_str, sizeof(val_str), "%.0f%s%s",s->scene.angleSteers , "°", "");
+      snprintf(val_str, sizeof(val_str), "%.1f%s%s",s->scene.angleSteers , "°", "");
 
       snprintf(uom_str, sizeof(uom_str), "");
     bb_h +=bb_ui_draw_measure(s,  val_str, uom_str, "REAL STEER",
@@ -557,16 +557,16 @@ static void bb_ui_draw_measures_right(UIState *s, int bb_x, int bb_y, int bb_w )
     char uom_str[6];
     NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
     if (s->scene.enabled) {
-      //show Orange if more than 6 degrees
-      //show red if  more than 12 degrees
-      if(((s->scene.angleSteersDes) < -6) || ((s->scene.angleSteersDes) > 6)) {
+      //show Orange if more than 30 degrees
+      //show red if  more than 50 degrees
+      if(((s->scene.angleSteersDes) < -30) || ((s->scene.angleSteersDes) > 30)) {
         val_color = nvgRGBA(255, 188, 3, 200);
       }
-      if(((s->scene.angleSteersDes) < -12) || ((s->scene.angleSteersDes) > 12)) {
+      if(((s->scene.angleSteersDes) < -50) || ((s->scene.angleSteersDes) > 50)) {
         val_color = nvgRGBA(255, 0, 0, 200);
       }
       // steering is in degrees
-      snprintf(val_str, sizeof(val_str), "%.0f%s%s", s->scene.angleSteersDes, "°", "");
+      snprintf(val_str, sizeof(val_str), "%.1f%s%s", s->scene.angleSteersDes, "°", "");
     } else {
        snprintf(val_str, sizeof(val_str), "-");
     }
