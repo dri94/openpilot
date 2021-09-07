@@ -533,7 +533,7 @@ static void bb_ui_draw_measures_right(UIState *s, int bb_x, int bb_y, int bb_w )
     char uom_str[6];
     NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
       if (s->scene.enabled) {
-        NVGcolor val_color = COLOR_GREEN_ALPHA(200);
+        val_color = COLOR_GREEN_ALPHA(200);
       }
       //show Orange if more than 30 degrees
       //show red if  more than 50 degrees
