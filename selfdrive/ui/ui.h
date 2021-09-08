@@ -170,6 +170,8 @@ typedef struct UIScene {
     float rProb;
 
     bool lanelessModeStatus;
+
+    int standstillElapsed = 0;
   } lateralPlan;
 
 } UIScene;

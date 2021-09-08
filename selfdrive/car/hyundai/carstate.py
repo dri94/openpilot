@@ -38,6 +38,7 @@ class CarState(CarStateBase):
     self.acc_main_enabled = None
     self.prev_acc_main_enabled = None
     self.engineRPM = 0
+    self.cruiseState_standstill = False
 
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
@@ -73,6 +74,7 @@ class CarState(CarStateBase):
         self.prev_acc_main_enabled = self.acc_main_enabled
 
     ret.standstill = ret.vEgoRaw < 0.1
+    ret.standStill = self.CP.standStill
 
     ret.steeringAngleDeg = cp.vl["SAS11"]["SAS_Angle"]
     ret.steeringRateDeg = cp.vl["SAS11"]["SAS_Speed"]
@@ -97,6 +99,7 @@ class CarState(CarStateBase):
       ret.cruiseState.available = cp.vl["SCC11"]["MainMode_ACC"] == 0 or cp.vl["SCC11"]["MainMode_ACC"] == 1
       ret.cruiseState.enabled = cp.vl["SCC12"]["ACCMode"] != 0
       ret.cruiseState.standstill = cp.vl["SCC11"]["SCCInfoDisplay"] == 4.
+      self.cruiseState_standstill = ret.cruiseState.standstill
 
     if ret.cruiseState.available:
       if self.CP.carFingerprint in FEATURES["use_lfa_button"]:

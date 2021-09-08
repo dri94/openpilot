@@ -207,6 +207,8 @@ struct CarState {
 
   engineRPM @46 :Float32;
 
+  standStill @47 :Bool;
+
   # which packets this state came from
   canMonoTimes @12: List(UInt64);
 
@@ -448,6 +450,8 @@ struct CarParams {
   communityFeature @46: Bool;  # true if a community maintained feature is detected
   fingerprintSource @49: FingerprintSource;
   networkLocation @50 :NetworkLocation;  # Where Panda/C2 is integrated into the car's CAN network
+
+  standStill @58: Bool;
 
   struct LateralParams {
     torqueBP @0 :List(Int32);

@@ -395,6 +395,11 @@ class CarInterface(CarInterfaceBase):
       else:
         events.add(EventName.buttonEnable)
 
+    if self.CS.cruiseState_standstill or self.CC.standstill_status == 1:
+      self.CP.standStill = True
+    else:
+      self.CP.standStill = False
+
     ret.events = events.to_msg()
 
     self.CS.out = ret.as_reader()

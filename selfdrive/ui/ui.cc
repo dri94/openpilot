@@ -168,6 +168,7 @@ static void update_state(UIState *s) {
     s->scene.aEgo = car_state.getAEgo();
     s->scene.steeringTorqueEps = car_state.getSteeringTorqueEps();
     s->scene.steeringPressed = car_state.getSteeringPressed();
+    s->scene.standStill = car_state.getStandStill();
   }
   if (sm.updated("liveCalibration")) {
     scene.world_objects_visible = true;
@@ -206,6 +207,10 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carParams")) {
     scene.longitudinal_control = sm["carParams"].getCarParams().getOpenpilotLongitudinalControl();
+  }
+  if (sm.updated("lateralPlan")) {
+    auto lp_data = sm["lateralPlan"].getLateralPlan();
+    scene.lateralPlan.standstillElapsed = lp_data.getStandstillElapsed();
   }
   if (sm.updated("sensorEvents")) {
     for (auto sensor : sm["sensorEvents"].getSensorEvents()) {
