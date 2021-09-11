@@ -198,6 +198,8 @@ struct CarState {
   # clutch (manual transmission only)
   clutchPressed @28 :Bool;
 
+  brakeLights @19 :Bool;
+
   lfaEnabled @38 :Bool;
   accMainEnabled @39 :Bool;
   leftBlinkerOn @40 :Bool;
@@ -270,7 +272,6 @@ struct CarState {
   }
 
   errorsDEPRECATED @0 :List(CarEvent.EventName);
-  brakeLightsDEPRECATED @19 :Bool;
 }
 
 # ******* radar state @ 20hz *******
