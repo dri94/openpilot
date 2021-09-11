@@ -254,6 +254,8 @@ class CarInterface(CarInterfaceBase):
 
     ret.enableBsm = 0x58b in fingerprint[0]
 
+    ret.standStill = False
+
     return ret
 
   def update(self, c, can_strings):
