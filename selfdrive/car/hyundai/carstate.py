@@ -204,6 +204,8 @@ class CarState(CarStateBase):
     self.speed_sign = speed_sign_new
     self.cruise_speed_desired = int(self.speed_sign*1.1)
 
+    print(self.cruise_speed_desired)
+
     return ret
 
   @staticmethod
