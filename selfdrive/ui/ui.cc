@@ -311,6 +311,7 @@ static void update_status(UIState *s) {
       s->scene.started_frame = s->sm->frame;
 
       s->scene.end_to_end = Params().getBool("EndToEndToggle");
+      s->scene.laneless_mode = std::stoi(Params().get("LanelessMode"));
       s->wide_camera = Hardware::TICI() ? Params().getBool("EnableWideCamera") : false;
 
       // Update intrinsics matrix after possible wide camera toggle change

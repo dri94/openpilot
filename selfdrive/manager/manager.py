@@ -37,7 +37,7 @@ def manager_init():
     ("HasAcceptedTerms", "0"),
     ("OpenpilotEnabledToggle", "1"),
     ("EndToEndToggle", "1"),
-    ("LanelessMode", "0"),
+    ("LanelessMode", "2"),
     ("CarModel", ""),
     ("CarModelAbb", ""),
   ]
