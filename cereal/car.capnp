@@ -139,6 +139,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startupOneplusDEPRECATED @82;
 
     standStill @112;
+    speedSignChanged @113;
   }
 }
 
