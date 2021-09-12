@@ -69,13 +69,16 @@ def create_clu11(packer, frame, clu11, button):
   return packer.make_can_msg("CLU11", 0, values)
 
 
-def create_lfahda_mfc(packer, enabled, lkas_active, disengage_from_brakes, below_lane_change_speed, disengage_blinking_icon, hda_set_speed=0):
-  values = {
-    "LFA_Icon_State": 2 if lkas_active else 3 if disengage_blinking_icon else 1 if (disengage_from_brakes or below_lane_change_speed) else 0,
-    "HDA_Active": 1 if hda_set_speed else 0,
-    "HDA_Icon_State": 2 if hda_set_speed else 0,
-    "HDA_VSetReq": hda_set_speed,
-  }
+def create_lfahda_mfc(packer, enabled, lkas_active, disengage_from_brakes, below_lane_change_speed,
+                      disengage_blinking_icon, lfahda_mfc, is_highway, hda_set_speed=0, changed = False):
+  values = lfahda_mfc
+
+  values["LFA_Icon_State"] = 2 if lkas_active else 3 if disengage_blinking_icon else 1 if\
+                             (disengage_from_brakes or below_lane_change_speed) else 0
+  values["HDA_Active"] = 1 if hda_set_speed else 0
+  values["HDA_Icon_State"] = 2 if hda_set_speed else 1
+  values["HDA_VSetReq"] = hda_set_speed
+
   return packer.make_can_msg("LFAHDA_MFC", 0, values)
 
 def create_acc_commands(packer, enabled, accel, idx, lead_visible, set_speed, stopping):
