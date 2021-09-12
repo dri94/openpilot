@@ -133,7 +133,7 @@ class CarState(CarStateBase):
     else:
       ret.cruiseState.speed = 0
 
-    self.cruise_speed_current = int(cp.vl["SCC11"]["VSetDis"])
+    self.cruise_speed_current = ret.cruiseState.speed
 
     ret.steerWarning = False
 
