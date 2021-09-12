@@ -100,6 +100,7 @@ class CarController():
         self.last_resume_frame = frame
 
     if CS.out.brakeLights and CS.out.vEgo == 0:
+      self.standstill_status = 1
       self.standstill_status_timer += 1
       if self.standstill_status_timer > 200:
         self.standstill_status = 1
