@@ -169,6 +169,8 @@ static void update_state(UIState *s) {
     s->scene.steeringTorqueEps = car_state.getSteeringTorqueEps();
     s->scene.steeringPressed = car_state.getSteeringPressed();
     s->scene.standStill = car_state.getStandStill();
+    s->scene.lfaEnabled = car_state.getLfaEnabled();
+    s->scene.accMainEnabled = car_state.getAccMainEnabled();
   }
   if (sm.updated("liveCalibration")) {
     scene.world_objects_visible = true;

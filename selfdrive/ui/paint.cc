@@ -364,7 +364,9 @@ static void ui_draw_vision_header(UIState *s) {
   if (s->scene.end_to_end) {
     draw_laneless_button(s);
   }
-  ui_draw_standstill(s);
+  if (s->scene.lfaEnabled || s->scene.accMainEnabled) {
+    ui_draw_standstill(s);
+  }
 }
 
 //BB START: functions added for the display of various items

@@ -145,6 +145,8 @@ typedef struct UIScene {
   int satelliteCount;
   bool computerBraking;
   bool standStill;
+  bool lfaEnabled;
+  bool accMainEnabled;
 
   // modelV2
   float lane_line_probs[4];
