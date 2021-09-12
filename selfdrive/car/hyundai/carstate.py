@@ -202,7 +202,7 @@ class CarState(CarStateBase):
       self.speed_sign_changed = False
 
     self.speed_sign = speed_sign_new
-    self.cruise_speed_desired = int(self.speed_sign + 5)
+    self.cruise_speed_desired = int(self.speed_sign*1.1)
 
     return ret
 
