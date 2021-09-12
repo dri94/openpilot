@@ -39,7 +39,6 @@ class CarController():
 
     self.signal_last = 0.
     self.disengage_blink = 0.
-    self.last_button_press_frame = 0
     self.apply_steer_last = 0
     self.car_fingerprint = CP.carFingerprint
     self.steer_rate_limited = False
@@ -90,23 +89,6 @@ class CarController():
                                    left_lane, right_lane,
                                    left_lane_warning, right_lane_warning))
 
-    # do it every 25 frames to give can parser sufficient time to update
-    if (frame - self.last_button_press_frame) * DT_CTRL > 0.1:
-      self.last_button_press_frame = frame
-      if enabled and not CS.speed_change_applied and not pcm_cancel_cmd and not CS.out.cruiseState.standstill:
-        set_speed_current = int(CS.cruise_speed_current)
-        set_speed_map = CS.cruise_speed_desired
-        speed_diff = set_speed_map - set_speed_current
-        if speed_diff > 0:
-          can_sends.extend([create_clu11(self.packer, frame, CS.clu11, Buttons.RES_ACCEL)] * 25)
-          set_speed_current += 1
-        else:
-          can_sends.extend([create_clu11(self.packer, frame, CS.clu11, Buttons.SET_DECEL)] * 25)
-          set_speed_current -= 1
-        if set_speed_current == set_speed_map:
-          # we've reach our set speed, dont change on next frame
-          CS.speed_change_applied = True
-
     if pcm_cancel_cmd:
       can_sends.append(create_clu11(self.packer, frame, CS.clu11, Buttons.CANCEL))
     elif CS.out.cruiseState.standstill:
@@ -131,8 +113,6 @@ class CarController():
     if frame % 5 == 0 and self.car_fingerprint in [CAR.SONATA, CAR.PALISADE, CAR.IONIQ, CAR.KIA_NIRO_EV, CAR.KIA_NIRO_HEV_2021,
                                                    CAR.IONIQ_EV_2020, CAR.IONIQ_PHEV, CAR.KIA_CEED, CAR.KIA_SELTOS, CAR.KONA_EV,
                                                    CAR.ELANTRA_2021, CAR.ELANTRA_HEV_2021, CAR.SONATA_HYBRID, CAR.KONA_HEV]:
-      can_sends.append(create_lfahda_mfc(self.packer, enabled, lkas_active, disengage_from_brakes,
-                                         below_lane_change_speed, disengage_blinking_icon, CS.lfahda_mfc, CS.is_highway,
-                                         CS.speed_sign, CS.speed_sign_changed))
+      can_sends.append(create_lfahda_mfc(self.packer, enabled, lkas_active, disengage_from_brakes, below_lane_change_speed, disengage_blinking_icon))
 
     return can_sends

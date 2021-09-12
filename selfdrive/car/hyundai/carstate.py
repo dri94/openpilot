@@ -40,13 +40,6 @@ class CarState(CarStateBase):
     self.engineRPM = 0
     self.cruiseState_standstill = False
 
-    self.is_highway = False
-    self.speed_sign = 0
-    self.speed_sign_changed = False
-    self.cruise_speed_desired = 0
-    self.speed_change_applied = True
-    self.cruise_speed_current = 0
-
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
 
@@ -133,8 +126,6 @@ class CarState(CarStateBase):
     else:
       ret.cruiseState.speed = 0
 
-    self.cruise_speed_current = ret.cruiseState.speed
-
     ret.steerWarning = False
 
     if self.lfaEnabled or self.accMainEnabled:
@@ -191,18 +182,6 @@ class CarState(CarStateBase):
     self.brake_error = cp.vl["TCS13"]["ACCEnable"] != 0 # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
     self.prev_cruise_buttons = self.cruise_buttons
     self.cruise_buttons = cp.vl["CLU11"]["CF_Clu_CruiseSwState"]
-
-    self.lfahda_mfc = copy.copy(cp.vl["LFAHDA_MFC"])
-    self.is_highway = cp.vl["SCC11"]["Navi_SCC_Curve_Act"] != 0
-    speed_sign_new = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
-    if speed_sign_new != self.speed_sign:
-      self.speed_sign_changed = True
-      self.speed_change_applied = False
-    else:
-      self.speed_sign_changed = False
-
-    self.speed_sign = speed_sign_new
-    self.cruise_speed_desired = int(self.speed_sign*1.1)
 
     return ret
 
@@ -266,10 +245,6 @@ class CarState(CarStateBase):
       ("VSetDis", "SCC11", 0),
       ("SCCInfoDisplay", "SCC11", 0),
       ("ACC_ObjDist", "SCC11", 0),
-      ("Navi_SCC_Curve_Status", "SCC11", 0),
-      ("Navi_SCC_Curve_Act", "SCC11", 0),
-      ("Navi_SCC_Camera_Act", "SCC11", 0),
-      ("Navi_SCC_Camera_Status", "SCC11", 2),
       ("ACCMode", "SCC12", 1),
 
       ("LFA_Pressed", "BCM_PO_11", 0),
@@ -365,14 +340,6 @@ class CarState(CarStateBase):
         ("CF_VSM_Warn", "SCC12", 0),
       ]
 
-    signals += [
-      ("SpeedLim_Nav_Clu", "Navi_HU", 0),
-    ]
-
-    checks += [
-      ("Navi_HU", 5)
-    ]
-
     return CANParser(DBC[CP.carFingerprint]["pt"], signals, checks, 0)
 
   @staticmethod
@@ -399,17 +366,6 @@ class CarState(CarStateBase):
 
     checks = [
       ("LKAS11", 100)
-    ]
-
-    signals += [
-      ("HDA_Icon_State", "LFAHDA_MFC", 0),
-      ("HDA_Active", "LFAHDA_MFC", 0),
-      ("HDA_VSetReq", "LFAHDA_MFC", 0),
-      ("HDA_Chime", "LFAHDA_MFC", 0),
-    ]
-
-    checks += [
-      ("LFAHDA_MFC", 20)
     ]
 
     return CANParser(DBC[CP.carFingerprint]["pt"], signals, checks, 2)

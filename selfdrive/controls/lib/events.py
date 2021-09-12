@@ -377,14 +377,6 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
 
   # ********** events only containing alerts that display while engaged **********
 
-  EventName.speedSignChanged: {
-    ET.PERMANENT: Alert(
-      "Speed Limit Changing",
-      "Adjusting Cruise Speed",
-      AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.none, AudibleAlert.chimePrompt, 1., 2., 2.),
-  },
-
   EventName.gasPressed: {
     ET.PRE_ENABLE: Alert(
       "openpilot will not brake while gas pressed",
